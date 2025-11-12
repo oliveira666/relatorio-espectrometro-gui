@@ -1,0 +1,111 @@
+## ==========================================
+## Visual Studio / .NET / WinForms gitignore
+## ==========================================
+
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio cache/options
+.vs/
+*.vcxproj.user
+*.userprefs
+
+# Backup & temporary files
+*_i.c
+*_p.c
+*_h.h
+*.tmp
+*.temp
+*.bak
+*.ncb
+*.sdf
+*.opensdf
+*.dbmdl
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Publish Web Output
+publish/
+*.Publish.xml
+*.pubxml
+*.azurePubxml
+PublishProfiles/
+
+# Others
+*.Cache
+*.pdb
+*.mdb
+*.db
+*.opendb
+*.log
+*.svclog
+*.scc
+
+# Packages
+*.nupkg
+*.nuspec
+*.snupkg
+packages/
+# (NuGet restore recommended before build)
+!packages/build/
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# Windows image cache / thumbnails
+Thumbs.db
+ehthumbs.db
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Mac / Linux junk
+.DS_Store
+*.swp
+*.swo
+
+# VS Code
+.vscode/
+
+# Local configuration
+appsettings.Development.json
+secrets.json
+launchSettings.json
+
+# ResX generated code (if applicable)
+*.Designer.cs
+!Properties/Resources.Designer.cs
+!Properties/Settings.Designer.cs
+
+# Publish output
+/dist/
+out/
+
+# Optional: ignore user-created test files
+*.local
+*.testdata
+*.bak
+
+# Optional: logs and data
+logs/
+*.log
+*.csv
+*.sqlite

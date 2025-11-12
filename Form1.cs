@@ -1,13 +1,41 @@
+using relatorio_espectrometro_gui.Forms;
+using relatorio_espectrometro_gui.Forms.relatorio_espectrometro_gui.Utils;
+using System.Diagnostics;
+using System.Runtime.Versioning;
+
 namespace relatorio_espectrometro_gui
 {
+    [SupportedOSPlatform("windows")]
     public partial class Form : System.Windows.Forms.Form
     {
+        private Config config = new();
+
         public Form()
         {
             InitializeComponent();
+
+            try
+            {
+                config = new Config();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar a configuração:\n{ex.Message}",
+                                "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            TxtConfigPastaRelatorios.Text = config.RootFolder;
+            TxtConfigPastaDestino.Text = config.DestinationFolder;
+        }
+        private void Form_Load(object sender, EventArgs e)
+        {
+            /* Atualiza o Textbox da configuração
+            TxtConfigPastaRelatorios.Text = config.RootFolder;
+            TxtConfigPastaDestino.Text = config.DestinationFolder; */
+
+
         }
 
-        private void btnTestarComunicacao_Click(object sender, EventArgs e)
+        private void BtnTestarComunicacao_Click(object sender, EventArgs e)
         {
             // Simula teste de comunicação
             pbComunicacao.Value = 0;
@@ -42,16 +70,77 @@ namespace relatorio_espectrometro_gui
             });
         }
 
-        private void chkProcessaAuto_CheckedChanged(object sender, EventArgs e)
+        private void ChkProcessaAuto_CheckedChanged(object sender, EventArgs e)
         {
-            if (chkProcessaAuto.Checked)
+            if (ChkProcessaAuto.Checked)
             {
-                chkProcessaAuto.Text = "Parar";
+                ChkProcessaAuto.Text = "Parar";
             }
             else
             {
-                chkProcessaAuto.Text = "Iniciar";
+                ChkProcessaAuto.Text = "Iniciar";
             }
+        }
+
+        private void BtnAbrirConfig_Click(object sender, EventArgs e)
+        {
+            config = new();
+            if (File.Exists(config.ConfigPath))
+            {
+                // Abre com o aplicativo padrão (geralmente o Bloco de Notas)
+                ProcessStartInfo psi = new()
+                {
+                    FileName = config.ConfigPath,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            else
+            {
+                MessageBox.Show("O arquivo config.ini não foi encontrado.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void BtnSalvarConfig_Click(object sender, EventArgs e)
+        {
+            config = new();
+
+            if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text))
+                return;
+
+            else if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text))
+                return;
+
+                config.RootFolder = TxtConfigPastaRelatorios.Text;
+                config.DestinationFolder = TxtConfigPastaDestino.Text;
+
+                TxtConfigPastaRelatorios.Text = config.RootFolder;
+                TxtConfigPastaDestino.Text = config.DestinationFolder;
+
+                TxtConfigPastaDestino.ReadOnly = true;
+                TxtConfigPastaRelatorios.ReadOnly = true;
+
+                TxtConfigPastaRelatorios.BackColor = Color.LightGray;
+                TxtConfigPastaDestino.BackColor = Color.LightGray;
+        }
+
+        private void BtnEditarConfig_Click(object sender, EventArgs e)
+        {
+            TxtConfigPastaDestino.ReadOnly = false;
+            TxtConfigPastaDestino.BackColor = Color.WhiteSmoke;
+            TxtConfigPastaRelatorios.ReadOnly = false;
+            TxtConfigPastaRelatorios.BackColor = Color.WhiteSmoke;
+        }
+
+        private void TxtConfigPastaDestino_Leave(object sender, EventArgs e)
+        {
+            DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text);
+        }
+
+        private void TxtConfigPastaRelatorios_Leave(object sender, EventArgs e)
+        {
+            DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text);
+
         }
     }
 }

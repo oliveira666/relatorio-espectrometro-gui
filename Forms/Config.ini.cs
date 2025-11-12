@@ -17,10 +17,10 @@ namespace relatorio_espectrometro_gui.Forms
         private string _notProcessedFolder;
 
         // Atributos da API do Windows para configurar o arquivo ini
-        [LibraryImport("kernel32", StringMarshalling = StringMarshalling.Utf16)]
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
         private static extern long WritePrivateProfileString(string section, string key, string val, string ConfigPath);
 
-        [LibraryImport("kernel32", StringMarshalling = StringMarshalling.Utf16)]
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
         private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder retVal, int size, string ConfigPath);
 
         // Métodos Get, Set
@@ -80,7 +80,7 @@ namespace relatorio_espectrometro_gui.Forms
         // Método para Ler o INI
         public string Read(string section, string key)
         {
-            StringBuilder temp = new(2);
+            StringBuilder temp = new(255);
             GetPrivateProfileString(section, key, "", temp, 255, ConfigPath);
             return temp.ToString();
         }

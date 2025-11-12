@@ -1,5 +1,4 @@
 using relatorio_espectrometro_gui.Forms;
-using relatorio_espectrometro_gui.Forms.relatorio_espectrometro_gui.Utils;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 

@@ -90,22 +90,28 @@ appsettings.Development.json
 secrets.json
 launchSettings.json
 
-# ResX generated code (if applicable)
-*.Designer.cs
-!Properties/Resources.Designer.cs
-!Properties/Settings.Designer.cs
+#!*.Designer.cs   ← (não ignore os Designers de formulários)
+!**/*.Designer.cs
+
+# Ignore apenas os gerados automaticamente dentro de Properties
+Properties/Resources.Designer.cs
+Properties/Settings.Designer.cs
+
+# Resources & Configs
+*.resx
+!Properties/*.resx  # mantém resources do projeto
 
 # Publish output
 /dist/
 out/
 
-# Optional: ignore user-created test files
-*.local
-*.testdata
-*.bak
-
-# Optional: logs and data
+# Logs e dados temporários
 logs/
 *.log
 *.csv
 *.sqlite
+
+# Arquivos opcionais do usuário
+*.local
+*.testdata
+*.bak

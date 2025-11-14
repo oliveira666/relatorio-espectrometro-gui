@@ -36,37 +36,7 @@ namespace relatorio_espectrometro_gui
 
         private void BtnTestarComunicacao_Click(object sender, EventArgs e)
         {
-            // Simula teste de comunicação
-            pbComunicacao.Value = 0;
-            lblAcessoPastaDestino.Text = "Verificando pasta destino...";
-
-
-            Task.Run(async () =>
-            {
-                await Task.Delay(500);
-                this.Invoke(() =>
-                {
-                    lblAcessoPastaDestino.Text = "Pasta destino: OK";
-                    picAcessoPastaDestino.Image = Properties.Resources.green;
-                    pbComunicacao.Value = 30;
-                });
-
-                await Task.Delay(500);
-                this.Invoke(() =>
-                {
-                    lblArquivoPendente.Text = "Arquivos Pendentes: Nenhum";
-                    picArquivoPendente.Image = Properties.Resources.green;
-                    pbComunicacao.Value = 60;
-                });
-
-                await Task.Delay(500);
-                this.Invoke((Delegate)(() =>
-                {
-                    lblArquivoNaoProcessado.Text = "Arquivos Não Processados: 2";
-                    picArquivoNaoProcessado.Image = Properties.Resources.red;
-                    pbComunicacao.Value = 100;
-                }));
-            });
+            AtualizarComunicacoes();
         }
 
         private void ChkProcessaAuto_CheckedChanged(object sender, EventArgs e)
@@ -110,21 +80,28 @@ namespace relatorio_espectrometro_gui
             else if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text))
                 return;
 
-                config.RootFolder = TxtConfigPastaRelatorios.Text;
-                config.DestinationFolder = TxtConfigPastaDestino.Text;
+            config.RootFolder = TxtConfigPastaRelatorios.Text;
+            config.DestinationFolder = TxtConfigPastaDestino.Text;
 
-                TxtConfigPastaRelatorios.Text = config.RootFolder;
-                TxtConfigPastaDestino.Text = config.DestinationFolder;
+            TxtConfigPastaRelatorios.Text = config.RootFolder;
+            TxtConfigPastaDestino.Text = config.DestinationFolder;
 
-                TxtConfigPastaDestino.ReadOnly = true;
-                TxtConfigPastaRelatorios.ReadOnly = true;
+            TxtConfigPastaDestino.ReadOnly = true;
+            TxtConfigPastaRelatorios.ReadOnly = true;
 
-                TxtConfigPastaRelatorios.BackColor = Color.LightGray;
-                TxtConfigPastaDestino.BackColor = Color.LightGray;
+            TxtConfigPastaRelatorios.BackColor = Color.LightGray;
+            TxtConfigPastaDestino.BackColor = Color.LightGray;
+
+            BtnEditarConfig.Enabled = true;
+            BtnAbrirConfig.Enabled = true;
         }
 
         private void BtnEditarConfig_Click(object sender, EventArgs e)
         {
+            BtnSalvarConfig.Enabled = true;
+            BtnEditarConfig.Enabled = false;
+            BtnAbrirConfig.Enabled = false;
+
             TxtConfigPastaDestino.ReadOnly = false;
             TxtConfigPastaDestino.BackColor = Color.WhiteSmoke;
             TxtConfigPastaRelatorios.ReadOnly = false;
@@ -140,6 +117,29 @@ namespace relatorio_espectrometro_gui
         {
             DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text);
 
+        }
+
+        private async void AtualizarComunicacoes()
+        {
+            Communications comm = new();
+
+            pbComunicacao.Value = 0;
+            lblAcessoPastaDestino.Text = "Verificando acesso...";
+            await Task.Delay(500);
+            lblAcessoPastaDestino.Text = comm.HasAcessoPastaDestino ? "Status: OK" : "Status: Erro";
+            picAcessoPastaDestino.Image = comm.HasAcessoPastaDestino ? Properties.Resources.green : Properties.Resources.red;
+
+            lblArquivoPendente.Text = "Verificando...";
+            await Task.Delay(500);
+            lblArquivoPendente.Text = $"Arquivos Pendentes: {comm.CountPendentes}";
+            picArquivoPendente.Image = comm.CountPendentes == 0 ? Properties.Resources.green : Properties.Resources.red;
+            pbComunicacao.Value = 60;
+
+            lblArquivoNaoProcessado.Text = "Verificando...";
+            await Task.Delay(500);
+            lblArquivoNaoProcessado.Text = $"Arquivos Não Processados: {comm.CountNaoProcessados}";
+            picArquivoNaoProcessado.Image = comm.CountNaoProcessados == 0 ? Properties.Resources.green : Properties.Resources.red;
+            pbComunicacao.Value = 100;
         }
     }
 }

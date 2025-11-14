@@ -50,6 +50,7 @@ namespace relatorio_espectrometro_gui.Forms
                         return false;
                     }
                 }
+                _ = Directory.GetFiles(path).FirstOrDefault();
 
                 // Tudo certo
                 return true;

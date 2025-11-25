@@ -41,8 +41,10 @@ namespace relatorio_espectrometro_gui
 
         private void ChkProcessaAuto_CheckedChanged(object sender, EventArgs e)
         {
+            FileProcessor fp = new();
             if (ChkProcessaAuto.Checked)
             {
+                fp.Start(Log);
                 ChkProcessaAuto.Text = "Parar";
             }
             else
@@ -140,6 +142,26 @@ namespace relatorio_espectrometro_gui
             lblArquivoNaoProcessado.Text = $"Arquivos Não Processados: {comm.CountNaoProcessados}";
             picArquivoNaoProcessado.Image = comm.CountNaoProcessados == 0 ? Properties.Resources.green : Properties.Resources.red;
             pbComunicacao.Value = 100;
+        }
+
+        private void sairToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void Log(string msg)
+        {
+            if (tbConsole.InvokeRequired)
+            {
+                tbConsole.Invoke(new Action(() =>
+                {
+                    tbConsole.AppendText(msg + Environment.NewLine);
+                }));
+            }
+            else
+            {
+                tbConsole.AppendText(msg + Environment.NewLine);
+            }
         }
     }
 }

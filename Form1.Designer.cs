@@ -679,6 +679,7 @@
             sairToolStripMenuItem.Name = "sairToolStripMenuItem";
             sairToolStripMenuItem.Size = new Size(93, 22);
             sairToolStripMenuItem.Text = "S&air";
+            sairToolStripMenuItem.Click += sairToolStripMenuItem_Click;
             // 
             // ajudaToolStripMenuItem
             // 

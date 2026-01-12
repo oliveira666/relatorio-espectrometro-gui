@@ -57,8 +57,8 @@
             tabMain = new TabPage();
             GbProcessamentoAuto = new GroupBox();
             tlpConsole = new TableLayoutPanel();
-            tbConsole = new TextBox();
             ChkProcessaAuto = new CheckBox();
+            tbConsole = new RichTextBox();
             gbProcessarManual = new GroupBox();
             tlpArquivo = new TableLayoutPanel();
             lblArquivo = new Label();
@@ -341,6 +341,7 @@
             pbComunicacao.Location = new Point(52, 213);
             pbComunicacao.Name = "pbComunicacao";
             pbComunicacao.Size = new Size(305, 19);
+            pbComunicacao.Step = 33;
             pbComunicacao.TabIndex = 7;
             // 
             // gbArquivoPendente
@@ -472,8 +473,8 @@
             tlpConsole.ColumnStyles.Add(new ColumnStyle());
             tlpConsole.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
             tlpConsole.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            tlpConsole.Controls.Add(tbConsole, 0, 0);
             tlpConsole.Controls.Add(ChkProcessaAuto, 0, 1);
+            tlpConsole.Controls.Add(tbConsole, 0, 0);
             tlpConsole.Dock = DockStyle.Fill;
             tlpConsole.Location = new Point(3, 19);
             tlpConsole.Name = "tlpConsole";
@@ -482,19 +483,6 @@
             tlpConsole.RowStyles.Add(new RowStyle(SizeType.Percent, 25F));
             tlpConsole.Size = new Size(748, 144);
             tlpConsole.TabIndex = 0;
-            // 
-            // tbConsole
-            // 
-            tbConsole.BackColor = Color.DimGray;
-            tlpConsole.SetColumnSpan(tbConsole, 3);
-            tbConsole.Dock = DockStyle.Fill;
-            tbConsole.Location = new Point(3, 3);
-            tbConsole.Multiline = true;
-            tbConsole.Name = "tbConsole";
-            tbConsole.ReadOnly = true;
-            tbConsole.ScrollBars = ScrollBars.Vertical;
-            tbConsole.Size = new Size(742, 102);
-            tbConsole.TabIndex = 1;
             // 
             // ChkProcessaAuto
             // 
@@ -509,6 +497,18 @@
             ChkProcessaAuto.TextAlign = ContentAlignment.MiddleCenter;
             ChkProcessaAuto.UseVisualStyleBackColor = true;
             ChkProcessaAuto.CheckedChanged += ChkProcessaAuto_CheckedChanged;
+            // 
+            // tbConsole
+            // 
+            tbConsole.BackColor = Color.Black;
+            tbConsole.Font = new Font("Consolas", 10F);
+            tbConsole.ForeColor = Color.White;
+            tbConsole.Location = new Point(3, 3);
+            tbConsole.Name = "tbConsole";
+            tbConsole.ReadOnly = true;
+            tbConsole.Size = new Size(743, 102);
+            tbConsole.TabIndex = 3;
+            tbConsole.Text = "";
             // 
             // gbProcessarManual
             // 
@@ -563,6 +563,7 @@
             BtnEscolher.TabIndex = 2;
             BtnEscolher.Text = "Escolher...";
             BtnEscolher.UseVisualStyleBackColor = true;
+            BtnEscolher.Click += BtnEscolher_Click;
             // 
             // txtPath
             // 
@@ -599,12 +600,14 @@
             // 
             // BtnProcessarManual
             // 
+            BtnProcessarManual.Enabled = false;
             BtnProcessarManual.Location = new Point(3, 3);
             BtnProcessarManual.Name = "BtnProcessarManual";
             BtnProcessarManual.Size = new Size(100, 23);
             BtnProcessarManual.TabIndex = 0;
             BtnProcessarManual.Text = "Processar";
             BtnProcessarManual.UseVisualStyleBackColor = true;
+            BtnProcessarManual.Click += BtnProcessarManual_Click;
             // 
             // BtnLimpar
             // 
@@ -614,6 +617,7 @@
             BtnLimpar.TabIndex = 1;
             BtnLimpar.Text = "Limpar";
             BtnLimpar.UseVisualStyleBackColor = true;
+            BtnLimpar.Click += BtnLimpar_Click;
             // 
             // tabControl
             // 
@@ -736,7 +740,6 @@
             tabMain.ResumeLayout(false);
             GbProcessamentoAuto.ResumeLayout(false);
             tlpConsole.ResumeLayout(false);
-            tlpConsole.PerformLayout();
             gbProcessarManual.ResumeLayout(false);
             tlpArquivo.ResumeLayout(false);
             tlpArquivo.PerformLayout();
@@ -778,7 +781,6 @@
         private TabPage tabMain;
         private GroupBox GbProcessamentoAuto;
         private TableLayoutPanel tlpConsole;
-        private TextBox tbConsole;
         private CheckBox ChkProcessaAuto;
         private GroupBox gbProcessarManual;
         private TableLayoutPanel tlpArquivo;
@@ -799,5 +801,6 @@
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripMenuItem sobreToolStripMenuItem;
         private Button BtnEditarConfig;
+        private RichTextBox tbConsole;
     }
 }

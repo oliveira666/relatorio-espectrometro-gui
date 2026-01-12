@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Forms.VisualStyles;
 
 namespace relatorio_espectrometro_gui.Forms
 {
@@ -11,116 +9,175 @@ namespace relatorio_espectrometro_gui.Forms
     {
         private readonly Config config = new();
         private readonly Communications comm = new();
-        private string[] _arquivos;
-        private string _fileType;
-        private string[] _outputArquivo;
-        private string[] _cabecalho;
-        private string[] _linhas;
-        private string _arquivoFinal;
-        private bool _isRunning;
+        private readonly ConsoleLogger logger = new();
 
-        
+        public bool IsRunning { get; private set; } = false;
+        public string FileType { get; set; } = "*.txt";
 
-        public FileProcessor() 
+        private const int DelayEntreArquivosMs = 1500;
+
+        public FileProcessor(ConsoleLogger _logger)
         {
-            _fileType = "*.txt";
-            _arquivos = Directory.GetFiles(config.RootFolder, _fileType, SearchOption.TopDirectoryOnly);
-            _outputArquivo = OutputArquivo;
-            _cabecalho = Cabecalho;
-            _linhas = Linhas;
-            _arquivoFinal = ArquivoFinal;
-            _isRunning = false;
+            logger = _logger;
         }
 
-        public string[] Arquivos { get => _arquivos; set => _arquivos = value; }
-        public string FileType { get => _fileType; set => _fileType = value; }
-        public string[] OutputArquivo { get => _outputArquivo; set => _outputArquivo = value; }
-        public string[] Cabecalho { get => _cabecalho; set => _cabecalho = value; }
-        public string[] Linhas { get => _linhas; set => _linhas = value; }
-        public string ArquivoFinal { get => _arquivoFinal; set => _arquivoFinal = value; }
-        public bool IsRunning {  get => _isRunning; set => _isRunning = value; }
 
-        public void Start(Action<String> Log)
+        // START AUTOMÁTICO
+        public async Task Start(Action<string> Log)
         {
+            if (IsRunning)
+            {
+                logger.Log("Processamento automático já está em execução.");
+                return;
+            }
+
             IsRunning = true;
+            logger.Log("Processamento automático iniciado.");
+
             while (IsRunning)
             {
-                if (!comm.HasAcessoPastaDestino) 
-                {
-                    Log($"Sem acesso a pasta {config.DestinationFolder}");
+                await AutomaticLoop(Log);
+                await Task.Delay(500); // não trava CPU
+            }
+
+            logger.Log("Processamento automático finalizado.");
+        }
+
+        // STOP AUTOMÁTICO
+        public void Stop(Action<string> Log)
+        {
+            logger.Log("Parando processamento automático...");
+            IsRunning = false;
+        }
+
+        // LOOP AUTOMÁTICO
+        private async Task AutomaticLoop(Action<string> Log)
+        {
+            if (!comm.HasAcessoPastaDestino)
+            {
+                logger.Log($"Sem acesso à pasta de destino: {config.DestinationFolder}");
+                return;
+            }
+
+            var arquivos = Directory.GetFiles(config.RootFolder, FileType, SearchOption.TopDirectoryOnly);
+
+            if (arquivos.Length == 0)
+            {
+                logger.Log("Nenhum arquivo pendente.");
+                return;
+            }
+
+            foreach (var arquivo in arquivos)
+            {
+                if (!IsRunning)
                     return;
-                }
-                if (comm.CountPendentes == 0)
+
+                await ProcessFileInternal(arquivo, Log);
+
+                // Delay entre arquivos
+                int steps = DelayEntreArquivosMs / 100;
+                for (int i = 0; i < steps; i++)
                 {
-                    Log($"Sem arquivos pendentes para processar.");
-                    continue;
-                }
-                foreach (var item in Arquivos)
-                {
-                    OutputArquivo = File.ReadAllLines(item);
-
-                    Cabecalho = OutputArquivo[0].Split(';');
-                    Linhas = OutputArquivo[1].Split(';');
-
-                    // Cria um dicionário para usar cabecalho como chave
-                    Dictionary<string, string> dados = new Dictionary<string, string>();
-
-                    for (int i = 0; i < Cabecalho.Length; i++)
-                    {
-                        dados[Cabecalho[i]] = Linhas[i];
-                    }
-
-                    try
-                    {
-                        ArquivoFinal = (
-                            $"Record: 1" +
-                            $"Date:          {DateTime.Parse(dados["TimeStamp"]).ToString("HH,mm dd,MM,yyyy")}" +
-                            $"Program:       {dados["Method"]}" +
-                            $"Task:          Hydro" +
-                            $"Quality:       {dados["Quality"]}" +
-                            $"TypeStandard:  {dados["Standard"]}" +
-                            $"Run Number:    Average of N/A    Runs Done: N/A" +
-                            $"Sample:        {dados["Corrida"]},{dados["# dos tarugos"]},{dados["Operador"]},{dados["Liga"]},,,,," +
-                            $"Elements: 22" +
-                            $"Si: {dados["Si"].TrimStart('<')}, " +
-                            $"Fe: {dados["Fe"].TrimStart('<')}, " +
-                            $"Cu: {dados["Cu"].TrimStart('<')}, " +
-                            $"Mn: {dados["Mn"].TrimStart('<')}, " +
-                            $"Mg: {dados["Mg"].TrimStart('<')}, " +
-                            $"Cr: {dados["Cr"].TrimStart('<')}, " +
-                            $"Zn: {dados["Zn"].TrimStart('<')}, " +
-                            $"Ti: {dados["Ti"].TrimStart('<')}, " +
-                            $"V: {dados["V"].TrimStart('<')}, " +
-                            $"Sn: {dados["Sn"].TrimStart('<')}, " +
-                            $"Ni: {dados["Ni"].TrimStart('<')}, " +
-                            $"Na: N/A, " +
-                            $"Ca: {dados["Ca"].TrimStart('<')}, " +
-                            $"B: {dados["B"].TrimStart('<')}, " +
-                            $"Pb: {dados["Pb"].TrimStart('<')}, " +
-                            $"Ga: N/A, " +
-                            $"AL%: N/A, " +
-                            $"Al: {dados["Al"].TrimStart('<')}, " +
-                            $"Mg2Si: N/A, " +
-                            $"SiEXC: N/A, " +
-                            $"SiLivre: N/A");
-
-                        var timestamp = DateTime.Now.ToString("ddMMyy_HHmmss");
-                        var outFile = $@"{config.DestinationFolder}\Relatorio_{timestamp}.txt";
-                        File.WriteAllText(outFile, ArquivoFinal);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Não foi possível converter o arquivo. " + ex.Message);
-                    }
+                    if (!IsRunning) return;
+                    await Task.Delay(100);
                 }
             }
         }
-        public void Stop(Action<String> Log)
+
+        // PROCESSAMENTO MANUAL
+        public async Task<bool> ProcessFile(string filePath, Action<string> Log)
         {
-            Log("Parando processamento...");
-            IsRunning = false;
-            Log("Processamento parado.");
+            if (IsRunning)
+            {
+                logger.Log("Pare o processamento automático antes de usar o processamento manual.");
+                return false;
+            }
+
+            if (!File.Exists(filePath))
+            {
+                logger.Log($"Arquivo não encontrado: {filePath}");
+                return false;
+            }
+
+            return await ProcessFileInternal(filePath, Log);
         }
 
+        // PROCESSAMENTO DO ARQUIVO
+        private async Task<bool> ProcessFileInternal(string filePath, Action<string> Log)
+        {
+            try
+            {
+                logger.Log($"Processando: {Path.GetFileName(filePath)}");
+
+                var linhas = File.ReadAllLines(filePath);
+                var cabecalho = linhas[0].Split(';');
+                var dadosLinha = linhas[1].Split(';');
+
+                var dados = new Dictionary<string, string>();
+                for (int i = 0; i < cabecalho.Length; i++)
+                    dados[cabecalho[i]] = dadosLinha[i];
+
+                // Monta o conteúdo final
+                string conteudo = BuildOutputFile(dados);
+
+                // Gera arquivo
+                var timestamp = DateTime.Now.ToString("ddMMyy_HHmmss");
+                var destino = $@"{config.DestinationFolder}\Relatorio_{timestamp}.txt";
+
+                await File.WriteAllTextAsync(destino, conteudo);
+
+                // Move arquivo processado
+                var novoNome = Path.Combine(config.ProcessedFolder, Path.GetFileName(filePath));
+
+                if (!Directory.Exists(config.ProcessedFolder))
+                    Directory.CreateDirectory(config.ProcessedFolder);
+
+                File.Move(filePath, novoNome, true);
+
+                logger.Log("Arquivo processado com sucesso.", LogType.Success);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger.Log($"Erro ao processar {Path.GetFileName(filePath)}: {ex.Message}");
+                return false;
+            }
+        }
+
+        // CONSTROI O CONTEÚDO DO RELATÓRIO
+        private string BuildOutputFile(Dictionary<string, string> dados)
+        {
+            return
+                $"Record: 1\n" +
+                $"Date:          {DateTime.Parse(dados["Timestamp"]).ToString("HH,mm dd,MM,yyyy")}\n" +
+                $"Program:       {dados["Method"]}\n" +
+                $"Task:          Hydro\n" +
+                $"Quality:       {dados["Quality"]}\n" +
+                $"TypeStandard:  {dados["Standard"]}\n" +
+                $"Run Number:    Average of N/A    Runs Done: N/A\n" +
+                $"Sample:        {dados["Corrida"]},{dados["# dos tarugos"]},{dados["Operador"]},{dados["Liga"]},,,,,,\n" +
+                $"Elements: 22\n" +
+                $"Si: {dados["Si"].TrimStart('<')}\n" +
+                $"Fe: {dados["Fe"].TrimStart('<')}\n" +
+                $"Cu: {dados["Cu"].TrimStart('<')}\n" +
+                $"Mn: {dados["Mn"].TrimStart('<')}\n" +
+                $"Mg: {dados["Mg"].TrimStart('<')}\n" +
+                $"Cr: {dados["Cr"].TrimStart('<')}\n" +
+                $"Zn: {dados["Zn"].TrimStart('<')}\n" +
+                $"Ti: {dados["Ti"].TrimStart('<')}\n" +
+                $"V: {dados["V"].TrimStart('<')}\n" +
+                $"Sn: {dados["Sn"].TrimStart('<')}\n" +
+                $"Ni: {dados["Ni"].TrimStart('<')}\n" +
+                $"Na: N/A\n" +
+                $"Ca: {dados["Ca"].TrimStart('<')}\n" +
+                $"B: {dados["B"].TrimStart('<')}\n" +
+                $"Pb: {dados["Pb"].TrimStart('<')}\n" +
+                $"Ga: N/A\n" +
+                $"AL%: N/A\n" +
+                $"Al: {dados["Al"].TrimStart('<')}\n" +
+                $"Mg2Si: N/A\n" +
+                $"SiEXC: N/A\n" +
+                $"SiLivre: N/A";
+        }
     }
 }

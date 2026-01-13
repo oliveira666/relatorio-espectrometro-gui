@@ -41,12 +41,12 @@ namespace relatorio_espectrometro_gui.Forms
                 {
                     if (!Directory.Exists(path))
                     {
-                        MessageBox.Show(
+                        /*MessageBox.Show(
                             $"A pasta '{path}' não existe!",
                             "Erro",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error
-                        );
+                        );*/
                         return false;
                     }
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -15,6 +16,7 @@ namespace relatorio_espectrometro_gui.Forms
         private string _destinationFolder;
         private string _processedFolder;
         private string _notProcessedFolder;
+        private string _timer;
 
         // Atributos da API do Windows para configurar o arquivo ini
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
@@ -44,6 +46,13 @@ namespace relatorio_espectrometro_gui.Forms
         public string ProcessedFolder { get => _processedFolder; private set { _processedFolder = value; } }
         public string NotProcessedFolder { get => _notProcessedFolder; private set => _notProcessedFolder = value; }
 
+        public string Timer { get => _timer; set
+            {
+                _timer = value;
+                Write("TIMER", "VALOR", value);
+            }
+        }
+
         // Construtor
         public Config()
         {
@@ -55,16 +64,19 @@ namespace relatorio_espectrometro_gui.Forms
             {
                 _rootFolder = @"C:\temp\relatorios";
                 _destinationFolder = Path.Combine(_rootFolder, "Destino");
+                _timer = "300"; 
 
                 //Escreve no arquivo config.ini
                 Write("ORIGEM", "PATH", _rootFolder);
                 Write("DESTINO", "PATH", _destinationFolder);
+                Write("TIMER", "VALOR", _timer);
             }
             else
             {
                 // Lê do INI
                 _rootFolder = Read("ORIGEM", "PATH");
                 _destinationFolder = Read("DESTINO", "PATH");
+                _timer = Read("TIMER", "VALOR");
             }
             // Sempre será Child de _rootFolder
             _processedFolder = Path.Combine(_rootFolder, "Processado");

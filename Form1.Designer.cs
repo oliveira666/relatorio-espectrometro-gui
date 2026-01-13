@@ -31,12 +31,14 @@
             tabComs = new TabPage();
             gbConfig = new GroupBox();
             tableLayoutPanel1 = new TableLayoutPanel();
-            BtnEditarConfig = new Button();
+            txtConfigTimer = new TextBox();
             lblPastaRelatorios = new Label();
             lblConfigPastaDestino = new Label();
             TxtConfigPastaDestino = new TextBox();
             TxtConfigPastaRelatorios = new TextBox();
             BtnSalvarConfig = new Button();
+            lbConfigTimer = new Label();
+            BtnEditarConfig = new Button();
             BtnAbrirConfig = new Button();
             gbComs = new GroupBox();
             tlpComs = new TableLayoutPanel();
@@ -58,16 +60,16 @@
             GbProcessamentoAuto = new GroupBox();
             tlpConsole = new TableLayoutPanel();
             ChkProcessaAuto = new CheckBox();
+            BtnLimpar = new Button();
             tbConsole = new RichTextBox();
+            lbTimer = new Label();
+            lbAguardando = new Label();
             gbProcessarManual = new GroupBox();
             tlpArquivo = new TableLayoutPanel();
+            BtnProcessarManual = new Button();
             lblArquivo = new Label();
             BtnEscolher = new Button();
             txtPath = new TextBox();
-            lblValidaArquivo = new Label();
-            flpBotoesArquivo = new FlowLayoutPanel();
-            BtnProcessarManual = new Button();
-            BtnLimpar = new Button();
             tabControl = new TabControl();
             tabAbout = new TabPage();
             tableLayoutPanel2 = new TableLayoutPanel();
@@ -96,7 +98,6 @@
             tlpConsole.SuspendLayout();
             gbProcessarManual.SuspendLayout();
             tlpArquivo.SuspendLayout();
-            flpBotoesArquivo.SuspendLayout();
             tabControl.SuspendLayout();
             tabAbout.SuspendLayout();
             menuStrip1.SuspendLayout();
@@ -129,45 +130,46 @@
             // tableLayoutPanel1
             // 
             tableLayoutPanel1.ColumnCount = 4;
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 35.04244F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 21.65252F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 21.6525211F));
-            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 21.6525211F));
-            tableLayoutPanel1.Controls.Add(BtnEditarConfig, 0, 2);
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle());
+            tableLayoutPanel1.Controls.Add(txtConfigTimer, 1, 2);
             tableLayoutPanel1.Controls.Add(lblPastaRelatorios, 0, 1);
             tableLayoutPanel1.Controls.Add(lblConfigPastaDestino, 0, 0);
             tableLayoutPanel1.Controls.Add(TxtConfigPastaDestino, 1, 0);
             tableLayoutPanel1.Controls.Add(TxtConfigPastaRelatorios, 1, 1);
-            tableLayoutPanel1.Controls.Add(BtnSalvarConfig, 0, 3);
-            tableLayoutPanel1.Controls.Add(BtnAbrirConfig, 2, 3);
+            tableLayoutPanel1.Controls.Add(BtnSalvarConfig, 0, 4);
+            tableLayoutPanel1.Controls.Add(lbConfigTimer, 0, 2);
+            tableLayoutPanel1.Controls.Add(BtnEditarConfig, 0, 3);
+            tableLayoutPanel1.Controls.Add(BtnAbrirConfig, 3, 3);
             tableLayoutPanel1.Dock = DockStyle.Fill;
             tableLayoutPanel1.Location = new Point(3, 19);
             tableLayoutPanel1.Name = "tableLayoutPanel1";
-            tableLayoutPanel1.RowCount = 4;
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
-            tableLayoutPanel1.RowStyles.Add(new RowStyle());
-            tableLayoutPanel1.RowStyles.Add(new RowStyle());
+            tableLayoutPanel1.RowCount = 5;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 20F));
             tableLayoutPanel1.Size = new Size(327, 271);
             tableLayoutPanel1.TabIndex = 0;
             // 
-            // BtnEditarConfig
+            // txtConfigTimer
             // 
-            BtnEditarConfig.AutoSize = true;
-            tableLayoutPanel1.SetColumnSpan(BtnEditarConfig, 2);
-            BtnEditarConfig.Font = new Font("Segoe UI", 9F);
-            BtnEditarConfig.Location = new Point(3, 211);
-            BtnEditarConfig.Name = "BtnEditarConfig";
-            BtnEditarConfig.Size = new Size(86, 25);
-            BtnEditarConfig.TabIndex = 6;
-            BtnEditarConfig.Text = "Editar Config";
-            BtnEditarConfig.UseVisualStyleBackColor = true;
-            BtnEditarConfig.Click += BtnEditarConfig_Click;
+            txtConfigTimer.BackColor = Color.LightGray;
+            tableLayoutPanel1.SetColumnSpan(txtConfigTimer, 3);
+            txtConfigTimer.Cursor = Cursors.IBeam;
+            txtConfigTimer.Font = new Font("Segoe UI", 9F);
+            txtConfigTimer.Location = new Point(117, 111);
+            txtConfigTimer.Name = "txtConfigTimer";
+            txtConfigTimer.Size = new Size(207, 23);
+            txtConfigTimer.TabIndex = 8;
             // 
             // lblPastaRelatorios
             // 
             lblPastaRelatorios.AutoSize = true;
-            lblPastaRelatorios.Location = new Point(3, 104);
+            lblPastaRelatorios.Location = new Point(3, 54);
             lblPastaRelatorios.Name = "lblPastaRelatorios";
             lblPastaRelatorios.Padding = new Padding(3, 6, 3, 3);
             lblPastaRelatorios.Size = new Size(104, 24);
@@ -204,7 +206,7 @@
             tableLayoutPanel1.SetColumnSpan(TxtConfigPastaRelatorios, 3);
             TxtConfigPastaRelatorios.Cursor = Cursors.IBeam;
             TxtConfigPastaRelatorios.Font = new Font("Segoe UI", 9F);
-            TxtConfigPastaRelatorios.Location = new Point(117, 107);
+            TxtConfigPastaRelatorios.Location = new Point(117, 57);
             TxtConfigPastaRelatorios.Name = "TxtConfigPastaRelatorios";
             TxtConfigPastaRelatorios.Size = new Size(207, 23);
             TxtConfigPastaRelatorios.TabIndex = 4;
@@ -213,10 +215,9 @@
             // BtnSalvarConfig
             // 
             BtnSalvarConfig.AutoSize = true;
-            tableLayoutPanel1.SetColumnSpan(BtnSalvarConfig, 2);
             BtnSalvarConfig.Enabled = false;
             BtnSalvarConfig.Font = new Font("Segoe UI", 9F);
-            BtnSalvarConfig.Location = new Point(3, 242);
+            BtnSalvarConfig.Location = new Point(3, 219);
             BtnSalvarConfig.Name = "BtnSalvarConfig";
             BtnSalvarConfig.Size = new Size(87, 25);
             BtnSalvarConfig.TabIndex = 0;
@@ -224,12 +225,33 @@
             BtnSalvarConfig.UseVisualStyleBackColor = true;
             BtnSalvarConfig.Click += BtnSalvarConfig_Click;
             // 
+            // lbConfigTimer
+            // 
+            lbConfigTimer.AutoSize = true;
+            lbConfigTimer.Location = new Point(3, 108);
+            lbConfigTimer.Name = "lbConfigTimer";
+            lbConfigTimer.Padding = new Padding(3, 6, 3, 3);
+            lbConfigTimer.Size = new Size(97, 24);
+            lbConfigTimer.TabIndex = 7;
+            lbConfigTimer.Text = "Valor do Timer:";
+            // 
+            // BtnEditarConfig
+            // 
+            BtnEditarConfig.AutoSize = true;
+            BtnEditarConfig.Font = new Font("Segoe UI", 9F);
+            BtnEditarConfig.Location = new Point(3, 165);
+            BtnEditarConfig.Name = "BtnEditarConfig";
+            BtnEditarConfig.Size = new Size(86, 25);
+            BtnEditarConfig.TabIndex = 6;
+            BtnEditarConfig.Text = "Editar Config";
+            BtnEditarConfig.UseVisualStyleBackColor = true;
+            BtnEditarConfig.Click += BtnEditarConfig_Click;
+            // 
             // BtnAbrirConfig
             // 
             BtnAbrirConfig.AutoSize = true;
-            tableLayoutPanel1.SetColumnSpan(BtnAbrirConfig, 2);
             BtnAbrirConfig.Font = new Font("Segoe UI", 9F);
-            BtnAbrirConfig.Location = new Point(187, 242);
+            BtnAbrirConfig.Location = new Point(226, 165);
             BtnAbrirConfig.Name = "BtnAbrirConfig";
             BtnAbrirConfig.Size = new Size(98, 25);
             BtnAbrirConfig.TabIndex = 1;
@@ -469,12 +491,16 @@
             // 
             // tlpConsole
             // 
-            tlpConsole.ColumnCount = 3;
+            tlpConsole.ColumnCount = 4;
             tlpConsole.ColumnStyles.Add(new ColumnStyle());
             tlpConsole.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
-            tlpConsole.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            tlpConsole.ColumnStyles.Add(new ColumnStyle());
+            tlpConsole.ColumnStyles.Add(new ColumnStyle());
             tlpConsole.Controls.Add(ChkProcessaAuto, 0, 1);
+            tlpConsole.Controls.Add(BtnLimpar, 1, 1);
             tlpConsole.Controls.Add(tbConsole, 0, 0);
+            tlpConsole.Controls.Add(lbTimer, 3, 1);
+            tlpConsole.Controls.Add(lbAguardando, 2, 1);
             tlpConsole.Dock = DockStyle.Fill;
             tlpConsole.Location = new Point(3, 19);
             tlpConsole.Name = "tlpConsole";
@@ -498,17 +524,51 @@
             ChkProcessaAuto.UseVisualStyleBackColor = true;
             ChkProcessaAuto.CheckedChanged += ChkProcessaAuto_CheckedChanged;
             // 
+            // BtnLimpar
+            // 
+            BtnLimpar.Anchor = AnchorStyles.Left;
+            BtnLimpar.Location = new Point(58, 113);
+            BtnLimpar.Name = "BtnLimpar";
+            BtnLimpar.Size = new Size(52, 25);
+            BtnLimpar.TabIndex = 1;
+            BtnLimpar.Text = "Limpar";
+            BtnLimpar.UseVisualStyleBackColor = true;
+            BtnLimpar.Click += BtnLimpar_Click;
+            // 
             // tbConsole
             // 
-            tbConsole.BackColor = Color.Black;
+            tbConsole.BackColor = Color.Gray;
+            tlpConsole.SetColumnSpan(tbConsole, 4);
             tbConsole.Font = new Font("Consolas", 10F);
             tbConsole.ForeColor = Color.White;
             tbConsole.Location = new Point(3, 3);
             tbConsole.Name = "tbConsole";
             tbConsole.ReadOnly = true;
-            tbConsole.Size = new Size(743, 102);
+            tbConsole.Size = new Size(742, 102);
             tbConsole.TabIndex = 3;
             tbConsole.Text = "";
+            // 
+            // lbTimer
+            // 
+            lbTimer.AutoSize = true;
+            lbTimer.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lbTimer.Location = new Point(715, 108);
+            lbTimer.Name = "lbTimer";
+            lbTimer.Size = new Size(30, 15);
+            lbTimer.TabIndex = 4;
+            lbTimer.Text = "--:--";
+            lbTimer.Visible = false;
+            // 
+            // lbAguardando
+            // 
+            lbAguardando.AutoSize = true;
+            lbAguardando.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lbAguardando.Location = new Point(527, 108);
+            lbAguardando.Name = "lbAguardando";
+            lbAguardando.Size = new Size(182, 15);
+            lbAguardando.TabIndex = 5;
+            lbAguardando.Text = "Tempo até próxima verificação:";
+            lbAguardando.Visible = false;
             // 
             // gbProcessarManual
             // 
@@ -529,26 +589,36 @@
             tlpArquivo.ColumnStyles.Add(new ColumnStyle());
             tlpArquivo.ColumnStyles.Add(new ColumnStyle());
             tlpArquivo.ColumnStyles.Add(new ColumnStyle());
+            tlpArquivo.Controls.Add(BtnProcessarManual, 0, 1);
             tlpArquivo.Controls.Add(lblArquivo, 0, 0);
             tlpArquivo.Controls.Add(BtnEscolher, 2, 0);
             tlpArquivo.Controls.Add(txtPath, 1, 0);
-            tlpArquivo.Controls.Add(lblValidaArquivo, 0, 1);
-            tlpArquivo.Controls.Add(flpBotoesArquivo, 0, 2);
             tlpArquivo.Location = new Point(8, 24);
             tlpArquivo.Name = "tlpArquivo";
-            tlpArquivo.RowCount = 4;
+            tlpArquivo.RowCount = 2;
             tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
-            tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
-            tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
             tlpArquivo.Size = new Size(738, 88);
             tlpArquivo.TabIndex = 0;
+            // 
+            // BtnProcessarManual
+            // 
+            BtnProcessarManual.Enabled = false;
+            BtnProcessarManual.Location = new Point(0, 36);
+            BtnProcessarManual.Margin = new Padding(0);
+            BtnProcessarManual.Name = "BtnProcessarManual";
+            BtnProcessarManual.Size = new Size(79, 25);
+            BtnProcessarManual.TabIndex = 0;
+            BtnProcessarManual.Text = "Processar";
+            BtnProcessarManual.UseVisualStyleBackColor = true;
+            BtnProcessarManual.Click += BtnProcessarManual_Click;
             // 
             // lblArquivo
             // 
             lblArquivo.AutoSize = true;
-            lblArquivo.Dock = DockStyle.Fill;
-            lblArquivo.Location = new Point(3, 0);
+            lblArquivo.Dock = DockStyle.Left;
+            lblArquivo.Location = new Point(0, 0);
+            lblArquivo.Margin = new Padding(0);
             lblArquivo.Name = "lblArquivo";
             lblArquivo.Size = new Size(52, 36);
             lblArquivo.TabIndex = 0;
@@ -557,9 +627,9 @@
             // 
             // BtnEscolher
             // 
-            BtnEscolher.Location = new Point(589, 3);
+            BtnEscolher.Location = new Point(610, 3);
             BtnEscolher.Name = "BtnEscolher";
-            BtnEscolher.Size = new Size(100, 24);
+            BtnEscolher.Size = new Size(85, 25);
             BtnEscolher.TabIndex = 2;
             BtnEscolher.Text = "Escolher...";
             BtnEscolher.UseVisualStyleBackColor = true;
@@ -569,55 +639,11 @@
             // 
             txtPath.BackColor = Color.WhiteSmoke;
             txtPath.Dock = DockStyle.Fill;
-            txtPath.Location = new Point(61, 3);
+            txtPath.Location = new Point(82, 3);
             txtPath.Name = "txtPath";
             txtPath.ReadOnly = true;
             txtPath.Size = new Size(522, 23);
             txtPath.TabIndex = 1;
-            // 
-            // lblValidaArquivo
-            // 
-            lblValidaArquivo.AutoSize = true;
-            tlpArquivo.SetColumnSpan(lblValidaArquivo, 3);
-            lblValidaArquivo.Dock = DockStyle.Fill;
-            lblValidaArquivo.ForeColor = Color.DimGray;
-            lblValidaArquivo.Location = new Point(3, 36);
-            lblValidaArquivo.Name = "lblValidaArquivo";
-            lblValidaArquivo.Size = new Size(778, 24);
-            lblValidaArquivo.TabIndex = 3;
-            lblValidaArquivo.Text = "Status: aguardando seleção";
-            // 
-            // flpBotoesArquivo
-            // 
-            tlpArquivo.SetColumnSpan(flpBotoesArquivo, 3);
-            flpBotoesArquivo.Controls.Add(BtnProcessarManual);
-            flpBotoesArquivo.Controls.Add(BtnLimpar);
-            flpBotoesArquivo.Dock = DockStyle.Fill;
-            flpBotoesArquivo.Location = new Point(3, 63);
-            flpBotoesArquivo.Name = "flpBotoesArquivo";
-            flpBotoesArquivo.Size = new Size(778, 30);
-            flpBotoesArquivo.TabIndex = 4;
-            // 
-            // BtnProcessarManual
-            // 
-            BtnProcessarManual.Enabled = false;
-            BtnProcessarManual.Location = new Point(3, 3);
-            BtnProcessarManual.Name = "BtnProcessarManual";
-            BtnProcessarManual.Size = new Size(100, 23);
-            BtnProcessarManual.TabIndex = 0;
-            BtnProcessarManual.Text = "Processar";
-            BtnProcessarManual.UseVisualStyleBackColor = true;
-            BtnProcessarManual.Click += BtnProcessarManual_Click;
-            // 
-            // BtnLimpar
-            // 
-            BtnLimpar.Location = new Point(109, 3);
-            BtnLimpar.Name = "BtnLimpar";
-            BtnLimpar.Size = new Size(100, 23);
-            BtnLimpar.TabIndex = 1;
-            BtnLimpar.Text = "Limpar";
-            BtnLimpar.UseVisualStyleBackColor = true;
-            BtnLimpar.Click += BtnLimpar_Click;
             // 
             // tabControl
             // 
@@ -708,6 +734,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = SystemColors.Control;
             ClientSize = new Size(784, 361);
             Controls.Add(tabControl);
             Controls.Add(menuStrip1);
@@ -740,10 +767,10 @@
             tabMain.ResumeLayout(false);
             GbProcessamentoAuto.ResumeLayout(false);
             tlpConsole.ResumeLayout(false);
+            tlpConsole.PerformLayout();
             gbProcessarManual.ResumeLayout(false);
             tlpArquivo.ResumeLayout(false);
             tlpArquivo.PerformLayout();
-            flpBotoesArquivo.ResumeLayout(false);
             tabControl.ResumeLayout(false);
             tabAbout.ResumeLayout(false);
             menuStrip1.ResumeLayout(false);
@@ -787,8 +814,6 @@
         private Label lblArquivo;
         private Button BtnEscolher;
         private TextBox txtPath;
-        private Label lblValidaArquivo;
-        private FlowLayoutPanel flpBotoesArquivo;
         private Button BtnProcessarManual;
         private Button BtnLimpar;
         private TabControl tabControl;
@@ -802,5 +827,9 @@
         private ToolStripMenuItem sobreToolStripMenuItem;
         private Button BtnEditarConfig;
         private RichTextBox tbConsole;
+        private Label lbTimer;
+        private Label lbAguardando;
+        private TextBox txtConfigTimer;
+        private Label lbConfigTimer;
     }
 }

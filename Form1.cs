@@ -1,6 +1,8 @@
 using relatorio_espectrometro_gui.Forms;
+using System;
 using System.Diagnostics;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
 
 namespace relatorio_espectrometro_gui
 {
@@ -9,58 +11,83 @@ namespace relatorio_espectrometro_gui
     {
         private Config config = new();
         private FileProcessor _fp;
-        private CancellationTokenSource _cts;
 
-        private ConsoleLogger _logger; // NOVO LOGGER
-
+        #region Constutor
         public Form()
         {
             InitializeComponent();
 
             try
             {
+               
+                LogHelper.Init(tbConsole);
+                LogHelper.ShowTimestamp = false; // janela pequena
+
+                AtualizarComunicacoes();
+
+
                 config = new();
-                _fp = new(_logger);
-                _logger = new(tbConsole);
+                _fp = new FileProcessor(config);
+                _fp.CooldownTick += seconds =>
+                {
+                    if (lbTimer.IsDisposed) return;
+                    lbAguardando.Visible = seconds >= 0 ? true : false;
+                    lbTimer.Visible = seconds >= 0 ? true : false;
+                    void setText()
+                    {
+                        lbTimer.Text = seconds < 0 ? "--:--" : FormatTime(seconds);
+                    }
+
+                    if (lbTimer.InvokeRequired)
+                        lbTimer.BeginInvoke((Action)setText);
+                    else
+                        setText();
+                };
+
+                TxtConfigPastaRelatorios.Text = config.RootFolder;
+                TxtConfigPastaDestino.Text = config.DestinationFolder;
+                txtConfigTimer.Text = config.Timer;
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Erro ao carregar a configuração:\n{ex.Message}",
+                MessageBox.Show($"{ex.Message}",
                                 "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            // Inicializar logger com o RichTextBox existente
-            _logger = new ConsoleLogger(tbConsole);
-
-            TxtConfigPastaRelatorios.Text = config.RootFolder;
-            TxtConfigPastaDestino.Text = config.DestinationFolder;
         }
-
+        #endregion
         private void BtnTestarComunicacao_Click(object sender, EventArgs e)
         {
             AtualizarComunicacoes();
+        }
+        private static string FormatTime(int seconds)
+        {
+            var ts = TimeSpan.FromSeconds(Math.Max(0, seconds));
+            return ts.ToString(@"mm\:ss"); // 05:00
         }
 
         private async void ChkProcessaAuto_CheckedChanged(object sender, EventArgs e)
         {
             if (ChkProcessaAuto.Checked)
             {
-                // INICIAR
                 ChkProcessaAuto.Text = "Parar";
+                LogHelper.Info("Iniciando processamento automático...");
+                await _fp.Start();
+                lbTimer.Text = "05:00";
 
-                _cts = new CancellationTokenSource();
-
-                await _fp.Start(msg => _logger.Log(msg));
             }
             else
             {
-                // PARAR
                 ChkProcessaAuto.Text = "Iniciar";
+                _fp.Stop();
 
-                _fp.Stop(msg => _logger.Log(msg));
-                _cts?.Cancel();
+                lbTimer.Text = "00:00";
+                LogHelper.Info("Processamento automático parado.");
             }
         }
+
+
+
 
         private void BtnAbrirConfig_Click(object sender, EventArgs e)
         {
@@ -87,7 +114,6 @@ namespace relatorio_espectrometro_gui
 
             if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text))
                 return;
-
             else if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text))
                 return;
 
@@ -96,15 +122,20 @@ namespace relatorio_espectrometro_gui
 
             TxtConfigPastaRelatorios.Text = config.RootFolder;
             TxtConfigPastaDestino.Text = config.DestinationFolder;
+            txtConfigTimer.Text = config.Timer;
 
             TxtConfigPastaDestino.ReadOnly = true;
             TxtConfigPastaRelatorios.ReadOnly = true;
+            txtConfigTimer.ReadOnly = true;
 
             TxtConfigPastaRelatorios.BackColor = Color.LightGray;
             TxtConfigPastaDestino.BackColor = Color.LightGray;
+            txtConfigTimer.BackColor = Color.LightGray;
 
             BtnEditarConfig.Enabled = true;
             BtnAbrirConfig.Enabled = true;
+
+            LogHelper.Ok("Configurações atualizadas.");
         }
 
         private void BtnEditarConfig_Click(object sender, EventArgs e)
@@ -117,6 +148,10 @@ namespace relatorio_espectrometro_gui
             TxtConfigPastaDestino.BackColor = Color.WhiteSmoke;
             TxtConfigPastaRelatorios.ReadOnly = false;
             TxtConfigPastaRelatorios.BackColor = Color.WhiteSmoke;
+            txtConfigTimer.ReadOnly = false;
+            txtConfigTimer.BackColor = Color.WhiteSmoke;
+
+            LogHelper.Info("Edição de config habilitada.");
         }
 
         private void TxtConfigPastaDestino_Leave(object sender, EventArgs e)
@@ -153,6 +188,8 @@ namespace relatorio_espectrometro_gui
             lblArquivoNaoProcessado.Text = $"Arquivos Não Processados: {comm.CountNaoProcessados}";
             picArquivoNaoProcessado.Image = comm.CountNaoProcessados == 0 ? Properties.Resources.green : Properties.Resources.red;
             pbComunicacao.PerformStep();
+
+            LogHelper.Info("Comunicações atualizadas.");
         }
 
         private void sairToolStripMenuItem_Click(object sender, EventArgs e)
@@ -173,6 +210,8 @@ namespace relatorio_espectrometro_gui
                 txtPath.Text = Path.GetFileName(ofd.FileName);
                 txtPath.Tag = ofd.FileName;
                 BtnProcessarManual.Enabled = true;
+
+                LogHelper.Info($"Arquivo selecionado: {txtPath.Text}");
             }
         }
 
@@ -184,11 +223,9 @@ namespace relatorio_espectrometro_gui
                     "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            else
-            {
-                string filePath = txtPath.Tag.ToString();
-                await _fp.ProcessFile(filePath, msg => _logger.Log(msg));
-            }
+
+            string filePath = txtPath.Tag.ToString()!;
+            await _fp.ProcessFile(filePath);
         }
 
         private void BtnLimpar_Click(object sender, EventArgs e)
@@ -196,6 +233,9 @@ namespace relatorio_espectrometro_gui
             txtPath.Text = "";
             txtPath.Tag = null;
             BtnProcessarManual.Enabled = false;
+
+            LogHelper.Clear();
         }
     }
 }
+

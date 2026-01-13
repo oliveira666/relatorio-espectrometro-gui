@@ -7,55 +7,53 @@ namespace relatorio_espectrometro_gui.Forms
 {
     internal class FileProcessor
     {
-        private readonly Config config = new();
+        public event Action<int>? CooldownTick; 
+        private readonly Config config;
         private readonly Communications comm = new();
-        private readonly ConsoleLogger logger = new();
 
         public bool IsRunning { get; private set; } = false;
         public string FileType { get; set; } = "*.txt";
 
         private const int DelayEntreArquivosMs = 1500;
 
-        public FileProcessor(ConsoleLogger _logger)
+        public FileProcessor(Config config)
         {
-            logger = _logger;
+            this.config = config;
         }
 
 
-        // START AUTOMÁTICO
-        public async Task Start(Action<string> Log)
+        public async Task Start()
         {
             if (IsRunning)
             {
-                logger.Log("Processamento automático já está em execução.");
+                LogHelper.Warn("Processamento automático já está em execução.");
                 return;
             }
 
             IsRunning = true;
-            logger.Log("Processamento automático iniciado.");
+            LogHelper.Info("Processamento automático iniciado.");
 
             while (IsRunning)
             {
-                await AutomaticLoop(Log);
+                await AutomaticLoop();
                 await Task.Delay(500); // não trava CPU
             }
-
-            logger.Log("Processamento automático finalizado.");
         }
 
         // STOP AUTOMÁTICO
-        public void Stop(Action<string> Log)
+        public void Stop()
         {
-            logger.Log("Parando processamento automático...");
+            LogHelper.Info("Parando processamento automático...");
             IsRunning = false;
+
         }
 
         // LOOP AUTOMÁTICO
-        private async Task AutomaticLoop(Action<string> Log)
+        private async Task AutomaticLoop()
         {
             if (!comm.HasAcessoPastaDestino)
             {
-                logger.Log($"Sem acesso à pasta de destino: {config.DestinationFolder}");
+                LogHelper.Error($"Sem acesso à pasta de destino: {config.DestinationFolder}");
                 return;
             }
 
@@ -63,51 +61,67 @@ namespace relatorio_espectrometro_gui.Forms
 
             if (arquivos.Length == 0)
             {
-                logger.Log("Nenhum arquivo pendente.");
+                LogHelper.Info("Nenhum arquivo pendente.");
                 return;
             }
+
+            LogHelper.Info($"Encontrados {arquivos.Length} arquivo(s) pendente(s).");
 
             foreach (var arquivo in arquivos)
             {
                 if (!IsRunning)
                     return;
 
-                await ProcessFileInternal(arquivo, Log);
+                await ProcessFileInternal(arquivo);
 
                 // Delay entre arquivos
-                int steps = DelayEntreArquivosMs / 100;
+                int steps = DelayEntreArquivosMs / 10;
                 for (int i = 0; i < steps; i++)
                 {
-                    if (!IsRunning) return;
+                    if (IsRunning) return;
                     await Task.Delay(100);
                 }
             }
+            if (IsRunning)
+            {
+                const int total = 300; // 5 min
+
+                LogHelper.Info($"Aguardando {total} segundos até a próxima verificação...");
+                for (int remaining = total; remaining >= 0; remaining--)
+                {
+                    if (IsRunning) return;
+
+                    CooldownTick?.Invoke(remaining);
+                    await Task.Delay(1000);
+                }
+            }
+
         }
 
         // PROCESSAMENTO MANUAL
-        public async Task<bool> ProcessFile(string filePath, Action<string> Log)
+        public async Task<bool> ProcessFile(string filePath)
         {
             if (IsRunning)
             {
-                logger.Log("Pare o processamento automático antes de usar o processamento manual.");
+                LogHelper.Warn("Pare o processamento automático antes de usar o processamento manual.");
                 return false;
             }
 
             if (!File.Exists(filePath))
             {
-                logger.Log($"Arquivo não encontrado: {filePath}");
+                LogHelper.Error($"Arquivo não encontrado: {filePath}");
                 return false;
             }
 
-            return await ProcessFileInternal(filePath, Log);
+            return await ProcessFileInternal(filePath);
         }
 
         // PROCESSAMENTO DO ARQUIVO
-        private async Task<bool> ProcessFileInternal(string filePath, Action<string> Log)
+        private async Task<bool> ProcessFileInternal(string filePath)
         {
             try
             {
-                logger.Log($"Processando: {Path.GetFileName(filePath)}");
+                LogHelper.Info($"Processando: {Path.GetFileName(filePath)}");
 
                 var linhas = File.ReadAllLines(filePath);
                 var cabecalho = linhas[0].Split(';');
@@ -124,6 +138,7 @@ namespace relatorio_espectrometro_gui.Forms
                 var timestamp = DateTime.Now.ToString("ddMMyy_HHmmss");
                 var destino = $@"{config.DestinationFolder}\Relatorio_{timestamp}.txt";
 
+                LogHelper.Info("Gerando relatório...");
                 await File.WriteAllTextAsync(destino, conteudo);
 
                 // Move arquivo processado
@@ -134,14 +149,22 @@ namespace relatorio_espectrometro_gui.Forms
 
                 File.Move(filePath, novoNome, true);
 
-                logger.Log("Arquivo processado com sucesso.", LogType.Success);
+                LogHelper.Ok($"✓ {Path.GetFileName(filePath)}: Arquivo processado com sucesso.");
                 return true;
+            }
+            catch (KeyNotFoundException)
+            {
+                // Arquivo incompatível
+
+                LogHelper.Error($"X {Path.GetFileName(filePath)}: Arquivo incompatível, verifique o arquivo.");
+                return false;
             }
             catch (Exception ex)
             {
-                logger.Log($"Erro ao processar {Path.GetFileName(filePath)}: {ex.Message}");
+                LogHelper.Error(ex, Path.GetFileName(filePath));
                 return false;
             }
+
         }
 
         // CONSTROI O CONTEÚDO DO RELATÓRIO

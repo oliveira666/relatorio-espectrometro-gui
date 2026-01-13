@@ -2,87 +2,85 @@
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace relatorio_espectrometro_gui.Forms
+public static class LogHelper
 {
-    public enum LogType
+    private static RichTextBox? _box;
+
+    // janela pequena -> por padrão já é compacto
+    public static bool ShowTimestamp { get; set; } = false;
+    public static bool AutoScroll { get; set; } = true;
+
+    public static void Init(RichTextBox consoleBox)
     {
-        Info,
-        Success,
-        Warning,
-        Error
+        _box = consoleBox ?? throw new ArgumentNullException(nameof(consoleBox));
+
+        _box.ReadOnly = true;
+        _box.HideSelection = false;
+        _box.DetectUrls = false;
+        // _box.BackColor = Color.Black;
+        _box.ForeColor = Color.Black;
+        _box.Font = new Font("Consolas", 10f);
     }
 
-    public class ConsoleLogger
+    public static void Clear()
     {
-        private readonly RichTextBox _box;
-        private readonly Color _defaultForeColor;
-        private readonly Font _defaultFont;
+        if (_box == null) return;
 
-        public ConsoleLogger(RichTextBox richTextBox)
+        if (_box.InvokeRequired)
         {
-            _box = richTextBox ?? throw new ArgumentNullException(nameof(richTextBox));
-
-            // Salvar estilo padrão
-            _defaultForeColor = _box.ForeColor;
-            _defaultFont = _box.Font;
-
-            // Ajustar estilo do "terminal"
-            _box.BackColor = Color.Black;
-            _box.ForeColor = Color.White;
-            _box.Font = new Font("Consolas", 10, FontStyle.Regular);
-            _box.BorderStyle = BorderStyle.None;
-            _box.ReadOnly = true;
+            _box.BeginInvoke(new Action(Clear));
+            return;
         }
 
-        public void Log(string msg, LogType tipo = LogType.Info)
+        _box.Clear();
+    }
+
+    // ---- logs curtos ----
+    public static void Info(string msg) => WriteLine(msg, Color.Gainsboro);
+    public static void Ok(string msg = "OK") => WriteLine(msg, Color.LightGreen);
+    public static void Warn(string msg) => WriteLine(msg, Color.Khaki);
+    public static void Error(string msg) => WriteLine("X " + msg, Color.LightCoral);
+
+    // exceção em PT-BR e 1 linha só
+    public static void Error(Exception ex, string contextoCurto)
+    {
+        var friendly = ex switch
         {
-            if (_box.InvokeRequired)
-            {
-                _box.Invoke(new Action(() => Write(msg, tipo)));
-            }
-            else
-            {
-                Write(msg, tipo);
-            }
+            System.Collections.Generic.KeyNotFoundException => "arquivo inválido, verifique o arquivo.",
+            FormatException => "formato inválido (data/valor)",
+            IndexOutOfRangeException => "linha incompleta",
+            UnauthorizedAccessException => "sem permissão",
+            System.IO.IOException => "falha de I/O",
+            _ => "erro inesperado"
+        };
+
+        Error($"{contextoCurto}: {friendly}");
+    }
+
+    private static void WriteLine(string msg, Color color)
+    {
+        if (_box == null) return;
+        msg = (msg ?? "").Replace(Environment.NewLine, " ").Trim();
+        if (msg.Length == 0) return;
+
+        if (_box.InvokeRequired)
+        {
+            _box.BeginInvoke(new Action(() => WriteLine(msg, color)));
+            return;
         }
 
-        private void Write(string msg, LogType tipo)
+        var prefix = ShowTimestamp ? $"[{DateTime.Now:HH:mm:ss}] " : "";
+        var line = prefix + msg + Environment.NewLine;
+
+        _box.SelectionStart = _box.TextLength;
+        _box.SelectionLength = 0;
+        _box.SelectionColor = color;
+        _box.AppendText(line);
+        _box.SelectionColor = _box.ForeColor;
+
+        if (AutoScroll)
         {
-            Color color;
-            FontStyle style = FontStyle.Regular;
-
-            switch (tipo)
-            {
-                case LogType.Success:
-                    color = Color.Lime;
-                    break;
-
-                case LogType.Error:
-                    color = Color.Red;
-                    style = FontStyle.Bold;
-                    break;
-
-                case LogType.Warning:
-                    color = Color.Yellow;
-                    style = FontStyle.Bold;
-                    break;
-
-                default:
-                    color = Color.White;
-                    break;
-            }
-
             _box.SelectionStart = _box.TextLength;
-            _box.SelectionLength = 0;
-
-            _box.SelectionColor = color;
-            _box.SelectionFont = new Font(_defaultFont, style);
-
-            _box.AppendText(msg + Environment.NewLine);
-
-            _box.SelectionColor = _defaultForeColor;
-            _box.SelectionFont = _defaultFont;
-
             _box.ScrollToCaret();
         }
     }

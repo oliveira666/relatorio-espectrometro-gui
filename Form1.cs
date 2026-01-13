@@ -46,7 +46,7 @@ namespace relatorio_espectrometro_gui
 
                 TxtConfigPastaRelatorios.Text = config.RootFolder;
                 TxtConfigPastaDestino.Text = config.DestinationFolder;
-                txtConfigTimer.Text = config.Timer;
+                txtConfigTimer.Text = config.Timer.ToString();
 
             }
             catch (Exception ex)
@@ -71,14 +71,15 @@ namespace relatorio_espectrometro_gui
             if (ChkProcessaAuto.Checked)
             {
                 ChkProcessaAuto.Text = "Parar";
-                LogHelper.Info("Iniciando processamento automático...");
                 await _fp.Start();
-                lbTimer.Text = "05:00";
+                lbTimer.Text = TimeSpan.FromSeconds(config.Timer).ToString(@"mm\:ss"); ;
 
             }
             else
             {
                 ChkProcessaAuto.Text = "Iniciar";
+                lbAguardando.Visible = false;
+                lbTimer.Visible = false;
                 _fp.Stop();
 
                 lbTimer.Text = "00:00";
@@ -110,19 +111,45 @@ namespace relatorio_espectrometro_gui
 
         private void BtnSalvarConfig_Click(object sender, EventArgs e)
         {
-            config = new();
+            try
+            {
+                if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text))
+                {
+                    MessageBox.Show(
+                        "O caminho da pasta de relatórios é inválido ou não existe.",
+                        "Aviso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaRelatorios.Text))
+                // Validar pasta de destino
+                if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text))
+                {
+                    MessageBox.Show(
+                        "O caminho da pasta de destino é inválido ou não existe.",
+                        "Aviso",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Erro",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
                 return;
-            else if (!DirectoryHelper.ValidateDirectory(TxtConfigPastaDestino.Text))
-                return;
+            }
 
             config.RootFolder = TxtConfigPastaRelatorios.Text;
             config.DestinationFolder = TxtConfigPastaDestino.Text;
 
             TxtConfigPastaRelatorios.Text = config.RootFolder;
             TxtConfigPastaDestino.Text = config.DestinationFolder;
-            txtConfigTimer.Text = config.Timer;
+            txtConfigTimer.Text = config.Timer.ToString();
 
             TxtConfigPastaDestino.ReadOnly = true;
             TxtConfigPastaRelatorios.ReadOnly = true;
@@ -166,14 +193,14 @@ namespace relatorio_espectrometro_gui
 
         private async void AtualizarComunicacoes()
         {
-            Communications comm = new();
+            Communications comm = new(config);
             var _delay = 1500;
 
             pbComunicacao.Value = 1;
 
             lblAcessoPastaDestino.Text = "Verificando acesso...";
             await Task.Delay(_delay);
-            lblAcessoPastaDestino.Text = comm.HasAcessoPastaDestino ? "Status: OK" : "Status: Erro";
+            lblAcessoPastaDestino.Text = comm.HasAcessoPastaDestino ? "Status: OK" : "Status: Erro, verifique o Console";
             picAcessoPastaDestino.Image = comm.HasAcessoPastaDestino ? Properties.Resources.green : Properties.Resources.red;
             pbComunicacao.PerformStep();
 

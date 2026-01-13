@@ -219,7 +219,7 @@
             BtnSalvarConfig.Font = new Font("Segoe UI", 9F);
             BtnSalvarConfig.Location = new Point(3, 219);
             BtnSalvarConfig.Name = "BtnSalvarConfig";
-            BtnSalvarConfig.Size = new Size(87, 25);
+            BtnSalvarConfig.Size = new Size(107, 30);
             BtnSalvarConfig.TabIndex = 0;
             BtnSalvarConfig.Text = "Salvar Config";
             BtnSalvarConfig.UseVisualStyleBackColor = true;
@@ -241,7 +241,7 @@
             BtnEditarConfig.Font = new Font("Segoe UI", 9F);
             BtnEditarConfig.Location = new Point(3, 165);
             BtnEditarConfig.Name = "BtnEditarConfig";
-            BtnEditarConfig.Size = new Size(86, 25);
+            BtnEditarConfig.Size = new Size(106, 30);
             BtnEditarConfig.TabIndex = 6;
             BtnEditarConfig.Text = "Editar Config";
             BtnEditarConfig.UseVisualStyleBackColor = true;
@@ -251,9 +251,9 @@
             // 
             BtnAbrirConfig.AutoSize = true;
             BtnAbrirConfig.Font = new Font("Segoe UI", 9F);
-            BtnAbrirConfig.Location = new Point(226, 165);
+            BtnAbrirConfig.Location = new Point(205, 165);
             BtnAbrirConfig.Name = "BtnAbrirConfig";
-            BtnAbrirConfig.Size = new Size(98, 25);
+            BtnAbrirConfig.Size = new Size(119, 30);
             BtnAbrirConfig.TabIndex = 1;
             BtnAbrirConfig.Text = "Abrir Config.ini";
             BtnAbrirConfig.UseVisualStyleBackColor = true;
@@ -297,10 +297,10 @@
             BtnTestarComunicacao.Anchor = AnchorStyles.Top;
             BtnTestarComunicacao.AutoSize = true;
             BtnTestarComunicacao.Font = new Font("Segoe UI", 9F);
-            BtnTestarComunicacao.Location = new Point(128, 238);
+            BtnTestarComunicacao.Location = new Point(115, 238);
             BtnTestarComunicacao.Name = "BtnTestarComunicacao";
             BtnTestarComunicacao.Padding = new Padding(10, 5, 10, 5);
-            BtnTestarComunicacao.Size = new Size(153, 30);
+            BtnTestarComunicacao.Size = new Size(178, 30);
             BtnTestarComunicacao.TabIndex = 8;
             BtnTestarComunicacao.Text = "Testar Comunicações";
             BtnTestarComunicacao.UseVisualStyleBackColor = true;
@@ -330,7 +330,7 @@
             tlpPastaDestino.Name = "tlpPastaDestino";
             tlpPastaDestino.RowCount = 1;
             tlpPastaDestino.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpPastaDestino.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tlpPastaDestino.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
             tlpPastaDestino.Size = new Size(397, 42);
             tlpPastaDestino.TabIndex = 0;
             // 
@@ -390,7 +390,7 @@
             tlpArquivoPendente.Name = "tlpArquivoPendente";
             tlpArquivoPendente.RowCount = 1;
             tlpArquivoPendente.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpArquivoPendente.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tlpArquivoPendente.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
             tlpArquivoPendente.Size = new Size(397, 42);
             tlpArquivoPendente.TabIndex = 1;
             // 
@@ -440,7 +440,7 @@
             tlpArquivoNaoProcessado.Name = "tlpArquivoNaoProcessado";
             tlpArquivoNaoProcessado.RowCount = 1;
             tlpArquivoNaoProcessado.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-            tlpArquivoNaoProcessado.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
+            tlpArquivoNaoProcessado.RowStyles.Add(new RowStyle(SizeType.Absolute, 48F));
             tlpArquivoNaoProcessado.Size = new Size(397, 42);
             tlpArquivoNaoProcessado.TabIndex = 1;
             // 
@@ -517,7 +517,7 @@
             ChkProcessaAuto.Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
             ChkProcessaAuto.Location = new Point(3, 113);
             ChkProcessaAuto.Name = "ChkProcessaAuto";
-            ChkProcessaAuto.Size = new Size(49, 25);
+            ChkProcessaAuto.Size = new Size(61, 25);
             ChkProcessaAuto.TabIndex = 2;
             ChkProcessaAuto.Text = "Iniciar";
             ChkProcessaAuto.TextAlign = ContentAlignment.MiddleCenter;
@@ -527,9 +527,9 @@
             // BtnLimpar
             // 
             BtnLimpar.Anchor = AnchorStyles.Left;
-            BtnLimpar.Location = new Point(58, 113);
+            BtnLimpar.Location = new Point(70, 113);
             BtnLimpar.Name = "BtnLimpar";
-            BtnLimpar.Size = new Size(52, 25);
+            BtnLimpar.Size = new Size(57, 25);
             BtnLimpar.TabIndex = 1;
             BtnLimpar.Text = "Limpar";
             BtnLimpar.UseVisualStyleBackColor = true;
@@ -544,7 +544,7 @@
             tbConsole.Location = new Point(3, 3);
             tbConsole.Name = "tbConsole";
             tbConsole.ReadOnly = true;
-            tbConsole.Size = new Size(742, 102);
+            tbConsole.Size = new Size(742, 99);
             tbConsole.TabIndex = 3;
             tbConsole.Text = "";
             // 
@@ -584,7 +584,6 @@
             // 
             // tlpArquivo
             // 
-            tlpArquivo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             tlpArquivo.ColumnCount = 3;
             tlpArquivo.ColumnStyles.Add(new ColumnStyle());
             tlpArquivo.ColumnStyles.Add(new ColumnStyle());
@@ -593,12 +592,13 @@
             tlpArquivo.Controls.Add(lblArquivo, 0, 0);
             tlpArquivo.Controls.Add(BtnEscolher, 2, 0);
             tlpArquivo.Controls.Add(txtPath, 1, 0);
-            tlpArquivo.Location = new Point(8, 24);
+            tlpArquivo.Dock = DockStyle.Bottom;
+            tlpArquivo.Location = new Point(8, 31);
             tlpArquivo.Name = "tlpArquivo";
             tlpArquivo.RowCount = 2;
             tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 36F));
             tlpArquivo.RowStyles.Add(new RowStyle(SizeType.Absolute, 24F));
-            tlpArquivo.Size = new Size(738, 88);
+            tlpArquivo.Size = new Size(732, 88);
             tlpArquivo.TabIndex = 0;
             // 
             // BtnProcessarManual
@@ -688,6 +688,7 @@
             // 
             menuStrip1.AutoSize = false;
             menuStrip1.GripMargin = new Padding(6);
+            menuStrip1.ImageScalingSize = new Size(20, 20);
             menuStrip1.Items.AddRange(new ToolStripItem[] { arquivoToolStripMenuItem, ajudaToolStripMenuItem });
             menuStrip1.Location = new Point(8, 8);
             menuStrip1.Name = "menuStrip1";

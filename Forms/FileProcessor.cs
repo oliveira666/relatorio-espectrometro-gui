@@ -7,18 +7,19 @@ namespace relatorio_espectrometro_gui.Forms
 {
     internal class FileProcessor
     {
-        public event Action<int>? CooldownTick; 
+        public event Action<int>? CooldownTick;
         private readonly Config config;
-        private readonly Communications comm = new();
+        private readonly Communications comm;
 
-        public bool IsRunning { get; private set; } = false;
+        public bool IsRunning { get; private set; }
         public string FileType { get; set; } = "*.txt";
 
-        private const int DelayEntreArquivosMs = 1500;
+        private const int C_DelayEntreArquivosMs = 5000;
 
         public FileProcessor(Config config)
         {
             this.config = config;
+            this.comm = new(config);
         }
 
 
@@ -35,21 +36,20 @@ namespace relatorio_espectrometro_gui.Forms
 
             while (IsRunning)
             {
-                await AutomaticLoop();
-                await Task.Delay(500); // não trava CPU
+                await Loop();
+                await Task.Delay(C_DelayEntreArquivosMs); // não trava CPU
             }
         }
 
-        // STOP AUTOMÁTICO
         public void Stop()
         {
             LogHelper.Info("Parando processamento automático...");
             IsRunning = false;
+            Timer(false);
 
         }
 
-        // LOOP AUTOMÁTICO
-        private async Task AutomaticLoop()
+        private async Task Loop()
         {
             if (!comm.HasAcessoPastaDestino)
             {
@@ -57,45 +57,51 @@ namespace relatorio_espectrometro_gui.Forms
                 return;
             }
 
-            var arquivos = Directory.GetFiles(config.RootFolder, FileType, SearchOption.TopDirectoryOnly);
+            string[] ListaArquivos = Directory.GetFiles(config.RootFolder, FileType, SearchOption.TopDirectoryOnly);
 
-            if (arquivos.Length == 0)
+            if (ListaArquivos.Length == 0)
             {
                 LogHelper.Info("Nenhum arquivo pendente.");
+                Timer(IsRunning);
                 return;
             }
-
-            LogHelper.Info($"Encontrados {arquivos.Length} arquivo(s) pendente(s).");
-
-            foreach (var arquivo in arquivos)
+            else
             {
-                if (!IsRunning)
-                    return;
+                LogHelper.Info($"Encontrados {ListaArquivos.Length} arquivo(s) pendente(s).");
 
-                await ProcessFileInternal(arquivo);
-
-                // Delay entre arquivos
-                int steps = DelayEntreArquivosMs / 10;
-                for (int i = 0; i < steps; i++)
+                foreach (string arquivo in ListaArquivos)
                 {
-                    if (IsRunning) return;
-                    await Task.Delay(100);
+                    if (!IsRunning)
+                        return;
+
+                    await ProcessFileInternal(arquivo);
+
+                    int steps = C_DelayEntreArquivosMs / 10;
+                    for (int i = 0; i < steps; i++)
+                    {
+                        if (IsRunning) return;
+                        await Task.Delay(100);
+                    }
                 }
             }
-            if (IsRunning)
-            {
-                const int total = 300; // 5 min
+        }
 
-                LogHelper.Info($"Aguardando {total} segundos até a próxima verificação...");
-                for (int remaining = total; remaining >= 0; remaining--)
+        public async void Timer(bool isRunning)
+        {
+            while (isRunning)
+            {
+
+                IsRunning = false;
+                LogHelper.Info($"Aguardando {config.Timer} segundos até a próxima verificação...");
+                for (int remaining = config.Timer; remaining >= 0; remaining--)
                 {
-                    if (IsRunning) return;
+                    if (!isRunning) return;
 
                     CooldownTick?.Invoke(remaining);
                     await Task.Delay(1000);
                 }
+                IsRunning = true;
             }
-
         }
 
         // PROCESSAMENTO MANUAL
@@ -122,14 +128,15 @@ namespace relatorio_espectrometro_gui.Forms
             try
             {
                 LogHelper.Info($"Processando: {Path.GetFileName(filePath)}");
+                
 
-                var linhas = File.ReadAllLines(filePath);
-                var cabecalho = linhas[0].Split(';');
-                var dadosLinha = linhas[1].Split(';');
+                string[] arquivoDecomposto = File.ReadAllLines(filePath);
+                var cabecalho = arquivoDecomposto[0].Split(';');
+                var linhas = arquivoDecomposto[1].Split(';');
 
                 var dados = new Dictionary<string, string>();
                 for (int i = 0; i < cabecalho.Length; i++)
-                    dados[cabecalho[i]] = dadosLinha[i];
+                    dados[cabecalho[i]] = linhas[i];
 
                 // Monta o conteúdo final
                 string conteudo = BuildOutputFile(dados);
@@ -149,25 +156,24 @@ namespace relatorio_espectrometro_gui.Forms
 
                 File.Move(filePath, novoNome, true);
 
-                LogHelper.Ok($"✓ {Path.GetFileName(filePath)}: Arquivo processado com sucesso.");
+                LogHelper.Ok($"{Path.GetFileName(filePath)}: Arquivo processado com sucesso.");
                 return true;
             }
             catch (KeyNotFoundException)
             {
                 // Arquivo incompatível
 
-                LogHelper.Error($"X {Path.GetFileName(filePath)}: Arquivo incompatível, verifique o arquivo.");
+                LogHelper.Error($"{Path.GetFileName(filePath)}: Arquivo incompatível, verifique o arquivo.");
                 return false;
             }
             catch (Exception ex)
             {
-                LogHelper.Error(ex, Path.GetFileName(filePath));
+                LogHelper.Error($"{ex}");
                 return false;
             }
 
         }
 
-        // CONSTROI O CONTEÚDO DO RELATÓRIO
         private string BuildOutputFile(Dictionary<string, string> dados)
         {
             return

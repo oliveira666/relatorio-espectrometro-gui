@@ -11,17 +11,21 @@ namespace relatorio_espectrometro_gui.Forms
 {
     internal class Communications
     {
-        private readonly Config config = new();
+        private readonly Config _config;
         private readonly string _fileType = "*.txt";
 
+        public Communications(Config config)
+        {
+            _config = config;
+        }
         // Acesso à pasta destino
-        public bool HasAcessoPastaDestino => DirectoryHelper.ValidateDirectory(config.DestinationFolder);
+        public bool HasAcessoPastaDestino => DirectoryHelper.ValidateDirectory(_config.DestinationFolder);
 
         // Contagem de arquivos pendentes
-        public int CountPendentes => Directory.GetFiles(config.RootFolder, _fileType, SearchOption.TopDirectoryOnly).Length;
+        public int CountPendentes => Directory.GetFiles(_config.RootFolder, _fileType, SearchOption.TopDirectoryOnly).Length;
 
         // Contagem de arquivos não processados
-        public int CountNaoProcessados => Directory.GetFiles(config.NotProcessedFolder, _fileType, SearchOption.TopDirectoryOnly).Length;
+        public int CountNaoProcessados => Directory.GetFiles(_config.NotProcessedFolder, _fileType, SearchOption.TopDirectoryOnly).Length;
 
     }  
 }
